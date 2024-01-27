@@ -1,23 +1,26 @@
-const createError = require("http-errors");
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+import createError from "http-errors";
+import express, { json, urlencoded, static as expressStatic } from "express";
+import { join, dirname } from "path";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import { fileURLToPath } from "url";
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
+import indexRouter from "./routes/index.js";
+import usersRouter from "./routes/users.js";
 
 const app = express();
 
+const __currentModulePath = fileURLToPath(import.meta.url);
+
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
+app.set("views", join(dirname(__currentModulePath), "views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(json());
+app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(expressStatic(join(dirname(__currentModulePath), "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
@@ -42,4 +45,4 @@ app.listen(() => {
 	console.log(`Server is running on port 8000`);
 });
 
-module.exports = app;
+export default app;

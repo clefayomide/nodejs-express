@@ -1,6 +1,6 @@
-const express = require("express");
-const router = express.Router();
-const uuid = require("uuid");
+import { Router } from "express";
+const router = Router();
+import { v4 } from "uuid";
 
 let users = [];
 
@@ -49,7 +49,7 @@ router.post("/", function (req, res) {
 			.status(400)
 			.json({ message: "retired status is required", statusCode: 400 });
 	} else {
-		const userUuid = uuid.v4();
+		const userUuid = v4();
 		const data = {
 			userId: userUuid,
 			id: userUuid,
@@ -90,4 +90,4 @@ router.delete("/", function (req, res) {
 	}
 });
 
-module.exports = router;
+export default router;
