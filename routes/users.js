@@ -1,32 +1,50 @@
+import axios from "axios";
 import { Router } from "express";
 const router = Router();
 import { v4 } from "uuid";
 
 let users = [];
 
+const getExternalData = async (req, res, next) => {
+	try {
+		const responseData = await axios.get(
+			"https://jsonplaceholder.typicode.com/users"
+		);
+		req.externalData = responseData.data;
+		next();
+	} catch (error) {
+		const status = error.response.status;
+		const message = error.response.statusText;
+		res.status(status).json({
+			message: message,
+			status: status,
+		});
+	}
+};
+
 /* GET users listing. */
-router.get("/", function (req, res) {
+router.get("/", getExternalData, function (req, res) {
+	users = req.externalData;
 	res.status(200).json({ message: "Success", statusCode: 200, data: users });
 });
 
 // find user (allowed search param id and jobTitle)
 router.get("/find", function (req, res) {
-	const id = req.query.id ?? "";
-	const jobTitle = req.query.jobTitle ?? "";
+	const username = req.query.username ?? "";
+	// const jobTitle = req.query.jobTitle ?? "";
 
 	let responseData = [];
 
-	if (!id && !jobTitle) {
+	if (!username) {
 		return res
 			.status(422)
 			.json({ message: "One or more missing paramter", statusCode: 422 });
 	}
 
 	const searchResult = users.filter((user) => {
-		const matchId = !id || parseInt(user.id) === parseInt(id);
-		const matchJobTitle =
-			!jobTitle || user.jobTitle.toLowerCase() === jobTitle.toLowerCase();
-		return matchId && matchJobTitle;
+		const matchUsername =
+			!username || user.username.toLowerCase() === username.toLowerCase();
+		return matchUsername;
 	});
 
 	responseData = searchResult;
